@@ -1,4 +1,4 @@
-# Jutsu-Executer — shell/
+# Jutsu-Executer — shell
 
 This folder contains a small Python-based interactive shell used by the Jutsu-Executer project. It was split into simple, focused modules to improve readability and maintainability.
 
