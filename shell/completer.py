@@ -46,12 +46,30 @@ def longest_common_prefix(strs):
                 return ""
     return prefix
 
+def candidate_names(exe_name):
+    """Yield names to look for on PATH.
+
+    Always try the name as given first. On Windows, also try the extensions in
+    PATHEXT (.EXE, .CMD, .BAT, ...) when the name has no extension, so that
+    'git' can resolve to 'git.exe'. On other systems PATHEXT is empty, so the
+    behavior is unchanged.
+    """
+    names = [exe_name]
+    pathext = os.environ.get("PATHEXT", "")
+    if pathext and not os.path.splitext(exe_name)[1]:
+        for ext in pathext.split(os.pathsep):
+            ext = ext.strip()
+            if ext:
+                names.append(exe_name + ext)
+    return names
+
 def resolve_executable(exe_name):
     path_env = os.environ.get("PATH", "")
     for directory in path_env.split(os.pathsep):
-        candidate = os.path.join(directory, exe_name)
-        if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
-            return candidate
+        for name in candidate_names(exe_name):
+            candidate = os.path.join(directory, name)
+            if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
+                return candidate
     return None
 
 def completer(text, state):
