@@ -307,3 +307,26 @@ def run_external_command(tokens):
         subprocess.run(tokens, executable=exe_path)
     except Exception as e:
         print(f"{exe_name}: failed to execute: {e}")
+
+def run_capturing(tokens):
+    """Run an external command, echo its output, and return (returncode, stderr).
+
+    Used by 'doctor' mode so the captured error text can be sent for analysis.
+    """
+    exe_name = tokens[0]
+    exe_path = completer.resolve_executable(exe_name)
+    if exe_path is None:
+        message = f"{exe_name}: command not found"
+        print(message, file=sys.stderr)
+        return None, message
+    try:
+        result = subprocess.run(tokens, executable=exe_path, capture_output=True, text=True)
+        if result.stdout:
+            sys.stdout.write(result.stdout)
+        if result.stderr:
+            sys.stderr.write(result.stderr)
+        return result.returncode, result.stderr
+    except Exception as e:
+        message = f"{exe_name}: failed to execute: {e}"
+        print(message, file=sys.stderr)
+        return None, message

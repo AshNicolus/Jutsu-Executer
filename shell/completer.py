@@ -4,6 +4,9 @@ import sys
 # Expose builtin command names
 BUILTINS = ["echo", "exit", "type", "pwd", "cd", "history"]
 
+# AI-powered commands handled in main.py (not run through pipelines).
+AI_COMMANDS = ["ai", "ask", "agent", "doctor"]
+
 last_prefix = None
 tab_press_count = 0
 
@@ -12,7 +15,7 @@ def get_executable_matches(prefix):
     path_env = os.environ.get("PATH", "")
     seen = set()
 
-    for cmd in BUILTINS:
+    for cmd in BUILTINS + AI_COMMANDS:
         if cmd.startswith(prefix):
             matches.append(cmd)
             seen.add(cmd)
