@@ -31,6 +31,8 @@ AI commands (require a Gemini API key):
 - `agent <goal>`: generate a multi-step plan, show it, confirm, then run each step.
 - `doctor <command>`: run a command and, if it fails, explain why and suggest a fix.
 
+Auto-doctor: when any external command exits with a non-zero status, the shell automatically explains the failure and suggests a fix, the same as running `doctor` by hand. To turn this off, set `JUTSU_AUTO_DOCTOR=0`.
+
 If the API key is missing, the shell still works. The AI commands just report that they are unavailable.
 
 ## Setup

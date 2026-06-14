@@ -297,16 +297,32 @@ def run_external_with_redirection(cmd_tokens, stdout_f, stderr_f):
     except Exception as e:
         print(f"{exe_name}: failed to execute: {e}", file=sys.stderr)
 
-def run_external_command(tokens):
+def run_external_command(tokens, capture_stderr=False):
+    """Run an external command and return (returncode, stderr).
+
+    When capture_stderr is False the command streams normally and stderr is
+    None. When True, stderr is captured (and still echoed) so the caller can
+    feed it to auto-diagnosis. returncode is None when the command could not
+    be started.
+    """
     exe_name = tokens[0]
     exe_path = completer.resolve_executable(exe_name)
     if exe_path is None:
-        print(f"{exe_name}: command not found")
-        return
+        message = f"{exe_name}: command not found"
+        print(message)
+        return None, message
     try:
-        subprocess.run(tokens, executable=exe_path)
+        if capture_stderr:
+            result = subprocess.run(tokens, executable=exe_path, stderr=subprocess.PIPE, text=True)
+            if result.stderr:
+                sys.stderr.write(result.stderr)
+            return result.returncode, result.stderr
+        result = subprocess.run(tokens, executable=exe_path)
+        return result.returncode, None
     except Exception as e:
-        print(f"{exe_name}: failed to execute: {e}")
+        message = f"{exe_name}: failed to execute: {e}"
+        print(message)
+        return None, message
 
 def run_capturing(tokens):
     """Run an external command, echo its output, and return (returncode, stderr).
