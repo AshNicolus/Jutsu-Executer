@@ -1,18 +1,18 @@
 # Jutsu-Executer
 
-A small Python interactive shell with optional AI commands powered by Google Gemini.
+A small Python interactive shell with optional AI commands backed by Google Gemini.
 
-The shell runs as a simple REPL. It supports a handful of builtins, pipelines, redirection, tab completion, and command history. On top of that, four AI commands let you translate plain English into shell commands, diagnose failures, run multi-step plans, and ask questions about a file.
+The shell is a simple REPL. It supports a set of builtins, pipelines, redirection, tab completion, and command history. It also adds four AI commands. You can translate plain English into a shell command, ask a question about a file, run a multi-step plan, and diagnose a command that failed.
 
 ## Project layout
 
-All source lives in the `shell/` folder, split into focused modules:
+All source lives in the `shell/` folder, split into separate modules:
 
 - `main.py`: the REPL and command dispatch. This is the entry point.
 - `completer.py`: tab completion and PATH lookup. Exposes `setup_readline`, `BUILTINS`, and `AI_COMMANDS`.
 - `parser.py`: tokenizer and redirection parsing (`shell_tokenize`, `split_redirection`).
 - `commands.py`: builtins and command execution (history, echo, cd, type, pipelines, redirection, external commands).
-- `llm_helper.py`: the Gemini-backed functions used by the AI commands.
+- `llm_helper.py`: the Gemini functions used by the AI commands.
 
 ## Features
 
@@ -21,7 +21,7 @@ Shell:
 - Builtins: `echo`, `exit`, `type`, `pwd`, `cd`, `history`.
 - Tab completion for builtins, AI commands, and executables on `PATH`.
 - Tokenization with single and double quotes, escapes, pipes (`|`), and redirection (`>`, `>>`, `2>`, `2>>`).
-- Pipelines and external command execution via `subprocess`.
+- Pipelines and external command execution through `subprocess`.
 - In-memory history with optional `HISTFILE` persistence and `history -w|-r|-a`.
 
 AI commands (require a Gemini API key):
@@ -31,9 +31,9 @@ AI commands (require a Gemini API key):
 - `agent <goal>`: generate a multi-step plan, show it, confirm, then run each step.
 - `doctor <command>`: run a command and, if it fails, explain why and suggest a fix.
 
-Auto-doctor: when any external command exits with a non-zero status, the shell automatically explains the failure and suggests a fix, the same as running `doctor` by hand. To turn this off, set `JUTSU_AUTO_DOCTOR=0`.
+Auto-doctor: when any external command exits with a non-zero status, the shell explains the failure and suggests a fix on its own, the same as running `doctor` by hand. Set `JUTSU_AUTO_DOCTOR=0` to turn it off.
 
-If the API key is missing, the shell still works. The AI commands just report that they are unavailable.
+If the API key is missing, the shell still runs. The AI commands report that they are unavailable.
 
 ## Setup
 
@@ -67,7 +67,7 @@ The `.env` file is gitignored, so the key is not committed. You can get a key fr
 
 ## Running
 
-Run the shell from the `shell` folder:
+Run the shell from the project root:
 
 ```pwsh
 python .\shell\main.py
@@ -116,9 +116,9 @@ $ doctor python --badflag
 
 ## Notes
 
-- The shell implements a subset of POSIX shell behavior, not the full thing. It is meant for simple scripting and experimentation.
-- On Windows, executables are matched by exact name. If a command is not found, try running inside WSL or a Unix-like environment.
-- The `ai` and `agent` commands can generate commands that change or delete files. Read what is suggested before you confirm.
+- The shell covers a subset of POSIX shell behavior, not the full set. It is meant for simple scripting and experimentation. Variable expansion, globbing, and operators like `&&` and `||` are not supported.
+- On Windows, bare command names resolve through `PATHEXT`, so `git` finds `git.exe`. Scripts such as `.bat` and `.cmd` may not run the same way as `.exe` files.
+- The `ai` and `agent` commands can produce commands that change or delete files. Read what is suggested before you confirm.
 
 ## License
 
