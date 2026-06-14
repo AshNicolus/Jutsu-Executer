@@ -18,6 +18,14 @@ except Exception as e:  # pragma: no cover - import-time environment issue
 setup_readline(readline)
 
 
+def auto_doctor_enabled():
+    """Auto-diagnose failed commands unless the helper is missing or the user
+    turned it off with JUTSU_AUTO_DOCTOR=0."""
+    if llm_helper is None:
+        return False
+    return os.environ.get("JUTSU_AUTO_DOCTOR", "1").strip().lower() not in ("0", "false", "no", "off")
+
+
 def handle_ask(cmd_tokens):
     if llm_helper is None:
         print("ask: LLM helper unavailable (is GEMINI_API_KEY set?)")
@@ -113,7 +121,11 @@ def run_line(stripped_line):
     elif command == "doctor":
         handle_doctor(cmd_tokens)
     else:
-        cmds.run_external_command(cmd_tokens)
+        auto = auto_doctor_enabled()
+        returncode, error_output = cmds.run_external_command(cmd_tokens, capture_stderr=auto)
+        if auto and returncode not in (0, None):
+            print("--- doctor ---")
+            print(llm_helper.analyze_error(" ".join(cmd_tokens), error_output or ""))
 
 
 def main():
